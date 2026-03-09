@@ -10,9 +10,14 @@ POSTS = [
 ]
 
 
-@app.route('/api/posts', methods=['GET'])
-def get_posts():
-    return jsonify(POSTS)
+@app.route('/api/posts/<int:post_id>', methods=['GET'])
+def get_post(post_id):
+
+    for post in POSTS:
+        if post["id"] == post_id:
+            return jsonify(post)
+
+    return jsonify({"error": "Post not found"}), 404
 
 
 if __name__ == '__main__':
