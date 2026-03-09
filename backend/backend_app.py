@@ -22,6 +22,8 @@ def get_post(post_id):
 def get_posts():
     sort_field = request.args.get("sort")
     direction = request.args.get("direction")
+    page = request.args.get("page", type=int)
+    limit = request.args.get("limit", type=int)
 
     posts = POSTS.copy()
 
@@ -33,12 +35,22 @@ def get_posts():
             return jsonify({"error": "Invalid direction"}), 400
 
         reverse = direction == "desc"
+        posts = sorted(posts, key=lambda post: post[sort_field].lower(), reverse=reverse)
 
-        posts = sorted(
-            posts,
-            key=lambda post: post[sort_field].lower(),
-            reverse=reverse
-        )
+    if page is not None and limit is not None:
+        if page < 1 or limit < 1:
+            return jsonify({"error": "page and limit must be positive integers"}), 400
+
+        start = (page - 1) * limit
+        end = start + limit
+        paginated_posts = posts[start:end]
+
+        return jsonify({
+            "page": page,
+            "limit": limit,
+            "total_posts": len(posts),
+            "posts": paginated_posts
+        })
 
     return jsonify(posts)
 
