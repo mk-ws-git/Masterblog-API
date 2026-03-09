@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # This will enable CORS for all routes
+CORS(app)
 
 POSTS = [
     {"id": 1, "title": "First post", "content": "This is the first post."},
@@ -12,7 +12,6 @@ POSTS = [
 
 @app.route('/api/posts/<int:post_id>', methods=['GET'])
 def get_post(post_id):
-
     for post in POSTS:
         if post["id"] == post_id:
             return jsonify(post)
@@ -53,6 +52,18 @@ def add_post():
     POSTS.append(new_post)
 
     return jsonify(new_post), 201
+
+
+@app.route('/api/posts/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    for post in POSTS:
+        if post["id"] == post_id:
+            POSTS.remove(post)
+            return jsonify({
+                "message": f"Post with id {post_id} has been deleted successfully."
+            }), 200
+
+    return jsonify({"error": "Post not found"}), 404
 
 
 if __name__ == '__main__':
